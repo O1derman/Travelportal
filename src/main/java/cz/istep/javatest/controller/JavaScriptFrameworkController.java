@@ -4,11 +4,14 @@ import cz.istep.javatest.data.JavaScriptFramework;
 import cz.istep.javatest.data.Version;
 import cz.istep.javatest.repository.JavaScriptFrameworkRepository;
 import cz.istep.javatest.repository.VersionRepository;
+import cz.istep.javatest.rest.Errors;
+import cz.istep.javatest.rest.ValidationError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +34,7 @@ public class JavaScriptFrameworkController {
 
 	@PostMapping("/frameworks")
 	public ResponseEntity<JavaScriptFramework> createFramework(@RequestBody JavaScriptFramework framework) {
-		JavaScriptFramework savedFramework = repository.save(framework);
+			JavaScriptFramework savedFramework = repository.save(framework);
 		for (Version version : framework.getVersions()) {
 			version.setJavaScriptFramework(savedFramework);
 			versionRepository.save(version);
@@ -47,12 +50,17 @@ public class JavaScriptFrameworkController {
 			existingFramework.setHypeLevel(framework.getHypeLevel());
 			repository.save(existingFramework);
 			existingFramework.getVersions().forEach(existingVersion -> {
-				framework.getVersions().stream().findAny(existingVersion)
-				versionRepository.deleteById();
+				Version version = framework.getVersions().stream()
+						.filter(v -> existingVersion.getId().equals(v.getId()))
+						.findAny()
+						.orElse(null);
+				if(version == null)
+				versionRepository.deleteById(existingVersion.getId());
 			});
 
 			for (Version version : framework.getVersions()) {
 				version.setJavaScriptFramework(framework);
+				versionRepository.save(version);
 			}
 			return new ResponseEntity<>(existingFramework, HttpStatus.OK);
 		}).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
