@@ -1,10 +1,9 @@
 package cz.istep.javatest.data;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class JavaScriptFramework {
@@ -15,6 +14,12 @@ public class JavaScriptFramework {
 
 	@Size(min = 3, max = 30)
 	private String name;
+
+	@Enumerated(EnumType.STRING)
+	private HypeLevel hypeLevel;
+
+	@OneToMany(mappedBy="javaScriptFramework", fetch=FetchType.EAGER, cascade=CascadeType.ALL)
+	private List<Version> versions = new ArrayList<>();
 
 	public JavaScriptFramework() {
 	}
@@ -44,4 +49,19 @@ public class JavaScriptFramework {
 		return "JavaScriptFramework [id=" + id + ", name=" + name + "]";
 	}
 
+	public void setVersions(List<Version> versions) {
+		this.versions = versions;
+	}
+
+	public List<Version> getVersions() {
+		return versions;
+	}
+
+	public void setHypeLevel(HypeLevel hypeLevel) {
+		this.hypeLevel = hypeLevel;
+	}
+
+	public HypeLevel getHypeLevel() {
+		return hypeLevel;
+	}
 }
