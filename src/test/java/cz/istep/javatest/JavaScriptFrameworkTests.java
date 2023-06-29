@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -119,7 +120,7 @@ public class JavaScriptFrameworkTests {
 	@Test
 	public void updateFrameworkWithVersionsAndHypeLevel() throws Exception {
 		JavaScriptFramework framework = new JavaScriptFramework();
-		framework.setName("React");
+		framework.setName("Angular");
 
 		Version v1 = new Version();
 		v1.setVersionNumber("16.0.0");
@@ -151,7 +152,7 @@ public class JavaScriptFrameworkTests {
 
 		// Find the framework to update by name
 		JavaScriptFramework savedFramework = frameworks.stream()
-				.filter(f -> f.getName().equals("React"))
+				.filter(f -> f.getName().equals("Angular"))
 				.findFirst()
 				.orElse(null);
 
@@ -163,7 +164,7 @@ public class JavaScriptFrameworkTests {
 		savedFramework.getVersions().remove(1);
 
 		// Send the update request using mockMvc
-		mockMvc.perform(MockMvcRequestBuilders.put("/frameworks/{id}", savedFramework.getId())
+		mockMvc.perform(MockMvcRequestBuilders.put("/{id}", savedFramework.getId())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsBytes(savedFramework)))
 				.andExpect(status().isOk());

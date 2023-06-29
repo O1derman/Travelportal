@@ -18,7 +18,7 @@ public class JavaScriptFramework {
 	@Enumerated(EnumType.STRING)
 	private HypeLevel hypeLevel;
 
-	@OneToMany(mappedBy="javaScriptFramework", fetch=FetchType.EAGER, cascade=CascadeType.ALL)
+	@OneToMany(mappedBy="javaScriptFramework", fetch=FetchType.EAGER)
 	private List<Version> versions = new ArrayList<>();
 
 	public JavaScriptFramework() {

@@ -1,20 +1,27 @@
 package cz.istep.javatest.controller;
 
 import cz.istep.javatest.data.JavaScriptFramework;
+import cz.istep.javatest.data.Version;
 import cz.istep.javatest.repository.JavaScriptFrameworkRepository;
+import cz.istep.javatest.repository.VersionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Optional;
+
 @RestController
 public class JavaScriptFrameworkController {
 
 	private final JavaScriptFrameworkRepository repository;
+	private final VersionRepository versionRepository;
 
 	@Autowired
-	public JavaScriptFrameworkController(JavaScriptFrameworkRepository repository) {
+	public JavaScriptFrameworkController(JavaScriptFrameworkRepository repository, VersionRepository versionRepository) {
 		this.repository = repository;
+		this.versionRepository = versionRepository;
 	}
 
 	@GetMapping("/frameworks")
@@ -25,6 +32,10 @@ public class JavaScriptFrameworkController {
 	@PostMapping("/frameworks")
 	public ResponseEntity<JavaScriptFramework> createFramework(@RequestBody JavaScriptFramework framework) {
 		JavaScriptFramework savedFramework = repository.save(framework);
+		for (Version version : framework.getVersions()) {
+			version.setJavaScriptFramework(savedFramework);
+			versionRepository.save(version);
+		}
 		return ResponseEntity.status(HttpStatus.CREATED).body(savedFramework);
 	}
 
@@ -34,8 +45,15 @@ public class JavaScriptFrameworkController {
 		return repository.findById(id).map(existingFramework -> {
 			existingFramework.setName(framework.getName());
 			existingFramework.setHypeLevel(framework.getHypeLevel());
-			existingFramework.setVersions(framework.getVersions());
 			repository.save(existingFramework);
+			existingFramework.getVersions().forEach(existingVersion -> {
+				framework.getVersions().stream().findAny(existingVersion)
+				versionRepository.deleteById();
+			});
+
+			for (Version version : framework.getVersions()) {
+				version.setJavaScriptFramework(framework);
+			}
 			return new ResponseEntity<>(existingFramework, HttpStatus.OK);
 		}).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
